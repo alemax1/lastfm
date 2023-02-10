@@ -1,0 +1,9 @@
+{
+    "lastfm":{
+        "trackSearchURL":"http://ws.audioscrobbler.com/2.0/?method=track.search&format=json",
+        "albumSearchURL" :"http://ws.audioscrobbler.com/2.0/?method=album.getinfo&format=json",
+        "trackInfoURL" : "http://ws.audioscrobbler.com/2.0/?method=track.getInfo&format=json"
+    },
+    "client":
+        {"apiKey":"6741dc681b43487ae782af2c750c7f9d"}
+}
