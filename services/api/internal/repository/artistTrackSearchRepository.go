@@ -2,6 +2,7 @@ package repository
 
 import (
 	"api/internal/domain"
+	"api/internal/repository/helper"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -47,34 +48,10 @@ func (a artistTrackSearchRepository) GetArtistsAndTracksByPageAndLimit(params ma
 		return nil, errors.Wrap(err, "unmarshal page")
 	}
 
-	for i := range searchPage.Results.TrackMatches.Tracks {
-		trackInfoURL := fmt.Sprintf("%s&api_key=%s&artist=%s&track=%s",
-			viper.GetString("lastfm.trackInfoURL"),
-			viper.GetString("client.apiKey"),
-			url.QueryEscape(searchPage.Results.TrackMatches.Tracks[i].Artist),
-			url.QueryEscape(searchPage.Results.TrackMatches.Tracks[i].Name),
-		)
-
-		resp, err := http.Get(trackInfoURL)
-		if err != nil {
-			return nil, errors.Wrap(err, "get info")
-		}
-
-		respBytes, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "read body")
-		}
-		defer resp.Body.Close()
-
-		var trackInfo domain.TrackInfoSearch
-
-		if err := json.Unmarshal(respBytes, &trackInfo); err != nil {
-			return nil, errors.Wrap(err, "unmarshal info")
-		}
-
-		searchPage.Results.TrackMatches.Tracks[i].Playcount = trackInfo.TrackInfo.Playcount
-		searchPage.Results.TrackMatches.Tracks[i].Tags = trackInfo.TrackInfo.TopTags.Tag
+	tracks, err := helper.TrackInfoSearch(searchPage.Results.TrackMatches.Tracks)
+	if err != nil {
+		return nil, errors.Wrap(err, "helper")
 	}
 
-	return searchPage.Results.TrackMatches.Tracks, nil
+	return tracks, nil
 }

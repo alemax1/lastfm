@@ -1,27 +1,27 @@
 package domain
 
 type AlbumSearch struct {
-	Album Album `json:"album"`
+	Album `json:"album"`
 }
 
 type Album struct {
-	Artist    string      `json:"artist"`
-	Tags      Tags        `json:"tags"`
-	Playcount string      `json:"playcount"`
-	Tracks    albumTracks `json:"tracks"`
-	Name      string      `json:"name"`
-	Listeners string      `json:"listeners"`
+	Artist      string `json:"artist"`
+	Name        string `json:"name"`
+	Tags        Tags   `json:"tags"`
+	Playcount   string `json:"playcount"`
+	albumTracks `json:"tracks"`
+	Listeners   string `json:"listeners"`
 }
 
 type albumTracks struct {
-	Tracks []albumTrack `json:"track"`
+	Tracks []AlbumTrack `json:"track"`
 }
 
 type AlbumTrackSearch struct {
-	Track albumTrack `json:"track"`
+	Track AlbumTrack `json:"track"`
 }
 
-type albumTrack struct {
+type AlbumTrack struct {
 	Name      string `json:"name"`
 	Listeners string `json:"listeners"`
 	Playcount string `json:"playcount"`

@@ -14,8 +14,8 @@ func NewArtistTrackSearchUsecase(a domain.ArtistTrackSearchRepository) domain.Ar
 	}
 }
 
-func (a artistTrackSearchUsecase) GetArtistsAndTracksByPageAndLimit(params map[string][]string) ([]domain.Track, error) {
-	tracks, err := a.artistTrackSearchRepository.GetArtistsAndTracksByPageAndLimit(params)
+func (a artistTrackSearchUsecase) GetArtistsAndTracksByPageAndLimit(params map[string][]string) (tracks []domain.Track, err error) {
+	tracks, err = a.artistTrackSearchRepository.GetArtistsAndTracksByPageAndLimit(params)
 	if err != nil {
 		return nil, err
 	}

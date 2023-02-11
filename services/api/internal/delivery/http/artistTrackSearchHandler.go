@@ -18,10 +18,10 @@ func NewArtistTrackSearchHandler(e *echo.Echo, a domain.ArtistTrackSearchUsecase
 		artistTrackSearchUseCase: a,
 	}
 
-	e.GET("/tracks", handler.getAllTracksAndArtists)
+	e.GET("/tracks", handler.GetTracksAndArtists)
 }
 
-func (a artistTrackSearchHandler) getAllTracksAndArtists(c echo.Context) error {
+func (a artistTrackSearchHandler) GetTracksAndArtists(c echo.Context) error {
 	params := c.QueryParams()
 
 	if _, ok := params["track"]; !ok {

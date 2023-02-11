@@ -2,6 +2,7 @@ package repository
 
 import (
 	"api/internal/domain"
+	"api/internal/repository/helper"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -41,41 +42,15 @@ func (a albumSearchRepository) GetAlbumInfoByTitleAndArtist(params map[string][]
 	}
 	defer resp.Body.Close()
 
+	fmt.Println(string(respBytes))
+
 	var album domain.AlbumSearch
 
 	if err := json.Unmarshal(respBytes, &album); err != nil {
 		return nil, errors.Wrap(err, "unmarshal")
 	}
 
-	for i := range album.Album.Tracks.Tracks {
-		trackInfoURL := fmt.Sprintf("%s&api_key=%s&artist=%s&track=%s",
-			viper.GetString("lastfm.trackInfoURL"),
-			viper.GetString("client.apiKey"),
-			url.QueryEscape(album.Album.Artist),
-			url.QueryEscape(album.Album.Tracks.Tracks[i].Name),
-		)
+	albumTracks, err := helper.AlbumTrackInfoSearch(album)
 
-		resp, err := http.Get(trackInfoURL)
-		if err != nil {
-			return nil, errors.Wrap(err, "get info")
-		}
-
-		respBytes, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "read body")
-		}
-		defer resp.Body.Close()
-
-		var trackInfo domain.AlbumTrackSearch
-
-		if err := json.Unmarshal(respBytes, &trackInfo); err != nil {
-			return nil, errors.Wrap(err, "unmarshal info")
-		}
-
-		album.Album.Tracks.Tracks[i].Playcount = trackInfo.Track.Playcount
-		album.Album.Tracks.Tracks[i].Tags = trackInfo.Track.Tags
-		album.Album.Tracks.Tracks[i].Listeners = trackInfo.Track.Listeners
-	}
-
-	return &album.Album, nil
+	return &albumTracks.Album, nil
 }

@@ -1,6 +1,8 @@
 package usecase
 
-import "api/internal/domain"
+import (
+	"api/internal/domain"
+)
 
 type albumSearchUsecase struct {
 	albumSearchRepository domain.AlbumSearchRepository

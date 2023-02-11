@@ -1,13 +1,13 @@
 package domain
 
 type ArtistTrackSearch struct {
-	Results data `json:"results"`
+	Results `json:"results"`
 }
 
-type data struct {
+type Results struct {
 	TotalResult  string `json:"opensearch:totalResults"`
 	ItemsPerPage string `json:"opensearch:itemsPerPage"`
-	TrackMatches Tracks `json:"trackmatches"`
+	TrackMatches `json:"trackmatches"`
 }
 
 type TrackInfoSearch struct {
@@ -27,7 +27,7 @@ type Track struct {
 	Tags      []Tag  `json:"tags"`
 }
 
-type Tracks struct {
+type TrackMatches struct {
 	Tracks []Track `json:"track"`
 }
 
