@@ -5,5 +5,9 @@
         "trackInfoURL" : "http://ws.audioscrobbler.com/2.0/?method=track.getInfo&format=json"
     },
     "client":
-        {"apiKey":"6741dc681b43487ae782af2c750c7f9d"}
+        {"apiKey":"6741dc681b43487ae782af2c750c7f9d"},
+    "server":{
+        "host": "localhost",
+        "port": 8088
+    }
 }

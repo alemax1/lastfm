@@ -1,9 +1,9 @@
 package domain
 
-type Tag struct {
-	Name string `json:"name"`
+type Tags struct {
+	Tags []Tag `json:"tag,omitempty"`
 }
 
-type Tags struct {
-	Tag []Tag `json:"tag"`
+type Tag struct {
+	Name string `json:"name"`
 }

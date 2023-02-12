@@ -7,18 +7,18 @@ type AlbumSearch struct {
 type Album struct {
 	Artist      string `json:"artist"`
 	Name        string `json:"name"`
-	Tags        Tags   `json:"tags"`
+	Tags        `json:"tags"`
 	Playcount   string `json:"playcount"`
-	albumTracks `json:"tracks"`
+	AlbumTracks `json:"tracks"`
 	Listeners   string `json:"listeners"`
 }
 
-type albumTracks struct {
+type AlbumTracks struct {
 	Tracks []AlbumTrack `json:"track"`
 }
 
 type AlbumTrackSearch struct {
-	Track AlbumTrack `json:"track"`
+	AlbumTrack `json:"track"`
 }
 
 type AlbumTrack struct {
@@ -26,12 +26,4 @@ type AlbumTrack struct {
 	Listeners string `json:"listeners"`
 	Playcount string `json:"playcount"`
 	Tags      Tags   `json:"toptags"`
-}
-
-type AlbumSearchRepository interface {
-	GetAlbumInfoByTitleAndArtist(params map[string][]string) (*Album, error)
-}
-
-type AlbumSearchUsecase interface {
-	GetAlbumInfoByTitleAndArtist(params map[string][]string) (*Album, error)
 }

@@ -8,73 +8,89 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/viper"
+	"golang.org/x/sync/errgroup"
 )
 
-func TrackInfoSearch(tracks []domain.Track) ([]domain.Track, error) {
+const trackInfoURLTempl = "%s&api_key=%s&artist=%s&track=%s"
+
+func EnrichTrackInfo(tracks []domain.Track) ([]domain.Track, error) {
+	var trackInfo domain.TrackInfoSearch
+
+	g := new(errgroup.Group)
+
 	for i := range tracks {
-		trackInfoURL := fmt.Sprintf("%s&api_key=%s&artist=%s&track=%s",
-			viper.GetString("lastfm.trackInfoURL"),
-			viper.GetString("client.apiKey"),
-			url.QueryEscape(tracks[i].Artist),
-			url.QueryEscape(tracks[i].Name),
-		)
+		track := &tracks[i]
 
-		resp, err := http.Get(trackInfoURL)
-		if err != nil {
-			return nil, errors.Wrap(err, "get info")
-		}
+		g.Go(func() error {
+			respBytes, err := getTrackInfo(track.Artist, track.Name)
+			if err != nil {
+				return fmt.Errorf("getTrackInfo: %v", err)
+			}
 
-		respBytes, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "read body")
-		}
-		defer resp.Body.Close()
+			if err := json.Unmarshal(respBytes, &trackInfo); err != nil {
+				return fmt.Errorf("unmarshal: %v", err)
+			}
 
-		var trackInfo domain.TrackInfoSearch
+			track.Playcount = trackInfo.TrackInfo.Playcount
+			track.Tags = trackInfo.TrackInfo.TopTags.Tags
 
-		if err := json.Unmarshal(respBytes, &trackInfo); err != nil {
-			return nil, errors.Wrap(err, "unmarshal info")
-		}
-
-		tracks[i].Playcount = trackInfo.TrackInfo.Playcount
-		tracks[i].Tags = trackInfo.TrackInfo.TopTags.Tag
+			return nil
+		})
 	}
+	g.Wait()
 
 	return tracks, nil
 }
 
-func AlbumTrackInfoSearch(albumSearch domain.AlbumSearch) (*domain.AlbumSearch, error) {
+func EnrichAlbumInfo(albumSearch domain.AlbumSearch) (domain.AlbumSearch, error) {
+	var trackInfo domain.AlbumTrackSearch
+
+	g := new(errgroup.Group)
+
 	for i := range albumSearch.Album.Tracks {
-		trackInfoURL := fmt.Sprintf("%s&api_key=%s&artist=%s&track=%s",
-			viper.GetString("lastfm.trackInfoURL"),
-			viper.GetString("client.apiKey"),
-			url.QueryEscape(albumSearch.Album.Artist),
-			url.QueryEscape(albumSearch.Album.Tracks[i].Name),
-		)
+		track := &albumSearch.Album.Tracks[i]
 
-		resp, err := http.Get(trackInfoURL)
-		if err != nil {
-			return nil, errors.Wrap(err, "get info")
-		}
+		g.Go(func() error {
+			respBytes, err := getTrackInfo(albumSearch.Artist, albumSearch.Name)
+			if err != nil {
+				return fmt.Errorf("getTrackInfo: %v", err)
+			}
 
-		respBytes, err := ioutil.ReadAll(resp.Body)
-		if err != nil {
-			return nil, errors.Wrap(err, "read body")
-		}
-		defer resp.Body.Close()
+			if err := json.Unmarshal(respBytes, &trackInfo); err != nil {
+				return fmt.Errorf("unmarshal: %v", err)
+			}
 
-		var trackInfo domain.AlbumTrackSearch
+			track.Playcount = trackInfo.AlbumTrack.Playcount
+			track.Tags = trackInfo.AlbumTrack.Tags
+			track.Listeners = trackInfo.AlbumTrack.Listeners
 
-		if err := json.Unmarshal(respBytes, &trackInfo); err != nil {
-			return nil, errors.Wrap(err, "unmarshal info")
-		}
+			return nil
+		})
+	}
+	g.Wait()
 
-		albumSearch.Album.Tracks[i].Playcount = trackInfo.Track.Playcount
-		albumSearch.Album.Tracks[i].Tags = trackInfo.Track.Tags
-		albumSearch.Album.Tracks[i].Listeners = trackInfo.Track.Listeners
+	return albumSearch, nil
+}
+
+func getTrackInfo(artist, name string) ([]byte, error) {
+	trackInfoURL := fmt.Sprintf(trackInfoURLTempl,
+		viper.GetString("lastfm.trackInfoURL"),
+		viper.GetString("client.apiKey"),
+		url.QueryEscape(artist),
+		url.QueryEscape(name),
+	)
+
+	resp, err := http.Get(trackInfoURL)
+	if err != nil {
+		return nil, fmt.Errorf("get: %v", err)
+	}
+	defer resp.Body.Close()
+
+	respBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("read body: %v", err)
 	}
 
-	return &albumSearch, nil
+	return respBytes, nil
 }

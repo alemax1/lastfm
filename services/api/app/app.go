@@ -2,32 +2,29 @@ package app
 
 import (
 	"api/config"
-	"api/internal/delivery/http"
 	"api/internal/repository"
 	"api/internal/usecase"
-	"log"
+	"api/router"
+	"fmt"
 
-	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog/log"
+	"github.com/spf13/viper"
 )
 
 func Run() {
 	if err := config.Init(); err != nil {
-		log.Fatalf("error trying init config: %v", err)
+		log.Fatal().Err(err).Msg("error trying init config")
 	}
 
-	e := echo.New()
+	artistTrackSearchRepository := repository.NewArtistTrackSearch()
 
-	artistTrackSearchRepository := repository.NewArtistTrackSearchRepository()
+	artistTrackSearchUsecase := usecase.NewArtistTrackSearch(artistTrackSearchRepository)
 
-	artistTrackSearchUsecase := usecase.NewArtistTrackSearchUsecase(artistTrackSearchRepository)
+	albumSearchRepository := repository.NewAlbumSearch()
 
-	albumSearchRepository := repository.NewAlbumSearchRepository()
+	albumSearchUsecase := usecase.NewAlbumSearch(albumSearchRepository)
 
-	albumSearchUsecase := usecase.NewAlbumSearchUsecase(albumSearchRepository)
+	e := router.CreateRoutes(artistTrackSearchUsecase, albumSearchUsecase)
 
-	http.NewArtistTrackSearchHandler(e, artistTrackSearchUsecase)
-
-	http.NewAlbumSearchHandler(e, albumSearchUsecase)
-
-	e.Logger.Fatal(e.Start("localhost:8088"))
+	e.Logger.Fatal(e.Start(fmt.Sprintf("%s:%d", viper.GetString("server.host"), viper.GetInt("server.port"))))
 }
