@@ -2,9 +2,9 @@ package app
 
 import (
 	"api/config"
+	"api/internal/delivery/router"
 	"api/internal/repository"
 	"api/internal/usecase"
-	"api/router"
 	"fmt"
 
 	"github.com/rs/zerolog/log"

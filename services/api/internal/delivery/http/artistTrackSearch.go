@@ -23,7 +23,7 @@ func NewArtistTrackSearch(e *echo.Echo, a usecase.ArtistTrackSearch) *artistTrac
 func (a artistTrackSearch) GetTracksAndArtists(c echo.Context) error {
 	params := c.QueryParams()
 
-	if _, ok := params["track"]; !ok { //mapper
+	if _, ok := params["track"]; !ok {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "missing required parameter"})
 	}
 

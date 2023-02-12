@@ -22,7 +22,7 @@ func NewAlbumSearch(e *echo.Echo, a usecase.AlbumSearch) *albumSearch {
 func (a albumSearch) GetAlbumInfoByTitleAndArtist(c echo.Context) error {
 	params := c.QueryParams()
 
-	if _, ok := params["album"]; !ok { //mapper
+	if _, ok := params["album"]; !ok {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "missing required parameter"})
 	}
 
