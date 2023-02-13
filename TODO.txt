@@ -2,3 +2,8 @@
 2. Rename Track service
 3. Naming in repository layer same titles of struct and interface
 4. Migrations with makefile
+
+аочему находится во входной точке
+
+как заменять транспорт
+
