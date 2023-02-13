@@ -1,0 +1,22 @@
+{
+    "server":{
+        "host":"localhost",
+        "port": 8080
+    },
+    "trackAggregator":{
+        "host":"http://localhost",
+        "port":8088,
+        "methods":{
+            "tracks":"tracks",
+            "album": "album"
+        }
+    },
+    "trackDB":{
+        "port":5430,
+        "user": "postgres",
+        "host": "localhost",
+        "password": "1234",
+        "dbname": "postgres",
+        "sslmode": "disable"
+    }
+}

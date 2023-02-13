@@ -1,0 +1,11 @@
+DROP TABLE IF EXISTS artists;
+
+DROP TABLE IF EXISTS tracks;
+
+DROP TABLE IF EXISTS tags;
+
+DROP TABLE IF EXISTS tracks_tags;
+
+DROP TABLE IF EXISTS albums;
+
+DROP TABLE IF EXISTS albums_tracks;

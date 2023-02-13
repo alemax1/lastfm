@@ -1,0 +1,9 @@
+services:
+
+   track_db:
+    container_name: track_db
+    image: postgres:14.1-alpine
+    environment:
+      POSTGRES_PASSWORD: 1234
+    ports:
+      - 5430:5432

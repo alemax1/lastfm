@@ -52,7 +52,7 @@ func EnrichAlbumInfo(albumSearch domain.AlbumSearch) (domain.AlbumSearch, error)
 		track := &albumSearch.Album.Tracks[i]
 
 		g.Go(func() error {
-			respBytes, err := getTrackInfo(albumSearch.Artist, albumSearch.Name)
+			respBytes, err := getTrackInfo(albumSearch.Artist, track.Name)
 			if err != nil {
 				return fmt.Errorf("getTrackInfo: %v", err)
 			}
