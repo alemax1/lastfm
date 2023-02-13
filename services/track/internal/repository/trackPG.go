@@ -2,7 +2,9 @@ package repository
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"strconv"
 	"track/internal/domain"
 )
 
@@ -32,69 +34,68 @@ func (t trackPG) SaveTrackInfoToDB(tracks domain.TracksResponse) (err error) {
 				err = fmt.Errorf("%v: rollback: %v", err, e)
 				return
 			}
+		}
 
-			if e := txn.Commit(); e != nil {
-				err = fmt.Errorf("commit: %v", err)
-			}
+		if e := txn.Commit(); e != nil {
+			err = fmt.Errorf("commit: %v", err)
 		}
 	}()
 
 	for i := range tracks.Data {
+		var artistID int
 
-		if re, err := txn.Exec("INSERT INTO artists(name) VALUES($1)", tracks.Data[i].Artist); err != nil {
-			fmt.Println(re, err)
+		if err := txn.QueryRow("INSERT INTO artists(name) VALUES($1) RETURNING id", tracks.Data[i].Artist).Scan(&artistID); err != nil {
+			fmt.Println(err)
 		}
 
-		// if err := txn.QueryRow("INSERT INTO artists(name) VALUES($1) RETURNING id", tracks.Data[i].Artist).Scan(&artistID); err != nil {
-		// 	return fmt.Errorf("exec artist: %v", err)
-		// }
+		var trackID int
 
-		// fmt.Println(artistID, "      3")
+		listeners, err := strconv.Atoi(tracks.Data[i].Listeners)
+		if err != nil {
+			return fmt.Errorf("strconv: %v", err)
+		}
 
-		// var trackID int
+		playcount, err := strconv.Atoi(tracks.Data[i].Playcount)
+		if err != nil {
+			return fmt.Errorf("strconv: %v", err)
+		}
 
-		// listeners, err := strconv.Atoi(tracks.Data[i].Listeners)
-		// if err != nil {
-		// 	return fmt.Errorf("strconv: %v", err)
-		// }
+		if err := txn.QueryRow("INSERT INTO tracks(name, listeners, playcounts, artist_id) VALUES($1, $2, $3, $4) RETURNING id",
+			tracks.Data[i].Name,
+			listeners,
+			playcount,
+			artistID,
+		).Scan(&trackID); err != nil {
+			return fmt.Errorf("exec track: %v", err)
+		}
 
-		// playcount, err := strconv.Atoi(tracks.Data[i].Playcount)
-		// if err != nil {
-		// 	return fmt.Errorf("strconv: %v", err)
-		// }
+		for j := range tracks.Data[i].Tags {
+			if len(tracks.Data[i].Tags) == 0 {
+				continue
+			}
 
-		// if err := txn.QueryRow("INSERT INTO tracks(name, listeners, playcounts, artist_id) VALUES($1, $2, $3, $4) RETURNING id",
-		// 	tracks.Data[i].Name,
-		// 	listeners,
-		// 	playcount,
-		// 	artistID,
-		// ).Scan(&trackID); err != nil {
-		// 	return fmt.Errorf("exec track: %v", err)
-		// }
+			var tagID int
 
-		// fmt.Println(trackID, "2")
+			fmt.Println(tracks.Data[i].Tags[j].Name)
 
-		// for j := range tracks.Data[i].Tags {
-		// 	var tagID int
+			err := txn.QueryRow("INSERT INTO tags(name) VALUES($1) ON CONFLICT (name) DO UPDATE RETURNING(id)",
+				tracks.Data[i].Tags[j].Name,
+			).Scan(&tagID)
 
-		// 	if err := txn.QueryRow("INSERT INTO tags(name) VALUES($1) ON CONFLICT (name) DO NOTHING RETURNING(select id where name=$1)",
-		// 		tracks.Data[i].Tags[j].Name,
-		// 	).Scan(
-		// 		&tagID,
-		// 	); err != nil && !errors.Is(err, sql.ErrNoRows) {
-		// 		return fmt.Errorf("exec tag: %v", err)
-		// 	}
+			if err != nil && !errors.Is(err, sql.ErrNoRows) {
+				return fmt.Errorf("exec tag: %v", err)
+			}
 
-		// 	fmt.Println(tagID, "????????")
+			if tagID == 0 {
+				// select conflict tag
+			}
 
-		// 	if tagID == 0 {
-		// 		continue
-		// 	}
+			fmt.Println(tagID)
 
-		// 	if _, err := txn.Exec("INSERT INTO tracks_tags(track_id, tag_id) VALUES($1, $2)", trackID, tagID); err != nil {
-		// 		return fmt.Errorf("exec tracksTags: %v", err)
-		// 	}
-		// }
+			if _, err := txn.Exec("INSERT INTO tracks_tags(track_id, tag_id) VALUES($1, $2)", trackID, tagID); err != nil {
+				return fmt.Errorf("exec tracksTags: %v", err)
+			}
+		}
 	}
 
 	return nil
