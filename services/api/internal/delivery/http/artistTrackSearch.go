@@ -14,7 +14,7 @@ type artistTrackSearch struct {
 	artistTrackSearch usecase.ArtistTrackSearch
 }
 
-func NewArtistTrackSearch(e *echo.Echo, a usecase.ArtistTrackSearch) *artistTrackSearch {
+func NewArtistTrackSearch(a usecase.ArtistTrackSearch) *artistTrackSearch {
 	return &artistTrackSearch{
 		artistTrackSearch: a,
 	}

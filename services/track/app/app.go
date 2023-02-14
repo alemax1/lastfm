@@ -34,7 +34,9 @@ func Run() {
 
 	albumRepository := repository.NewAlbum()
 
-	albumUsecase := usecase.NewAlbumSearch(albumRepository)
+	albumPGRepository := repository.NewAlbumPG(conn)
+
+	albumUsecase := usecase.NewAlbumSearch(albumRepository, albumPGRepository)
 
 	e := router.CreateRoutes(trackUsecase, albumUsecase)
 

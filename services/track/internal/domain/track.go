@@ -8,6 +8,14 @@ type Track struct {
 	ArtistID   int    `json:"artist_id"`
 }
 
+type TrackDBResponse struct {
+	ID         int    `json:"id"`
+	Name       string `json:"name"`
+	Listeners  int    `json:"listeners"`
+	Playcounts int    `json:"playcounts"`
+	Artist     string `json:"artist"`
+}
+
 type TrackResponse struct {
 	Name      string `json:"name"`
 	Artist    string `json:"artist"`

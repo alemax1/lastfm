@@ -20,8 +20,6 @@ func EnrichTrackInfo(tracks []domain.Track) ([]domain.Track, error) {
 	for i := range tracks {
 		track := &tracks[i]
 
-		fmt.Println(track.Tags, 1)
-
 		g.Go(func() error {
 			var trackInfo domain.TrackInfoSearch
 
@@ -37,7 +35,6 @@ func EnrichTrackInfo(tracks []domain.Track) ([]domain.Track, error) {
 			track.Playcount = trackInfo.TrackInfo.Playcount
 			track.Tags = trackInfo.TrackInfo.TopTags.Tags
 
-			fmt.Println(track.Tags, 2)
 			return nil
 		})
 	}
@@ -47,16 +44,14 @@ func EnrichTrackInfo(tracks []domain.Track) ([]domain.Track, error) {
 }
 
 func EnrichAlbumInfo(albumSearch domain.AlbumSearch) (domain.AlbumSearch, error) {
-	var trackInfo domain.AlbumTrackSearch
-
 	g := new(errgroup.Group)
 
 	for i := range albumSearch.Album.Tracks {
 		track := &albumSearch.Album.Tracks[i]
 
-		fmt.Println(*track, 1)
-
 		g.Go(func() error {
+			var trackInfo domain.AlbumTrackSearch
+
 			respBytes, err := getTrackInfo(albumSearch.Artist, track.Name)
 			if err != nil {
 				return fmt.Errorf("getTrackInfo: %v", err)
@@ -69,8 +64,6 @@ func EnrichAlbumInfo(albumSearch domain.AlbumSearch) (domain.AlbumSearch, error)
 			track.Playcount = trackInfo.AlbumTrack.Playcount
 			track.Tags = trackInfo.AlbumTrack.Tags
 			track.Listeners = trackInfo.AlbumTrack.Listeners
-
-			fmt.Println(*track, 2)
 
 			return nil
 		})

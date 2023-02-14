@@ -13,10 +13,10 @@ type Response struct {
 type AlbumResponse struct {
 	Artist      string `json:"artist"`
 	Name        string `json:"name"`
-	Tags        Tags   `json:"tags"`
+	Tags        `json:"tags"`
 	Playcount   string `json:"playcount"`
-	AlbumTracks `json:"tracks"`
 	Listeners   string `json:"listeners"`
+	AlbumTracks `json:"tracks"`
 }
 
 type AlbumTracks struct {
@@ -27,5 +27,5 @@ type AlbumTrack struct {
 	Name      string `json:"name"`
 	Listeners string `json:"listeners"`
 	Playcount string `json:"playcount"`
-	Tags      Tags   `json:"toptags"`
+	Tags      `json:"toptags"`
 }

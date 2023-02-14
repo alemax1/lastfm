@@ -11,8 +11,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type track struct {
-}
+type track struct{}
 
 func NewTrack() Track {
 	return new(track)

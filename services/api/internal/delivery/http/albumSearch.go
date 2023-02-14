@@ -1,6 +1,7 @@
 package http
 
 import (
+	"api/internal/delivery/helper"
 	"api/internal/delivery/model"
 	"api/internal/usecase"
 	"net/http"
@@ -9,17 +10,28 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type albumSearch struct {
-	albumSearch usecase.AlbumSearch
+type albumSearchHandler struct {
+	aUsecase usecase.AlbumSearch
 }
 
-func NewAlbumSearch(e *echo.Echo, a usecase.AlbumSearch) *albumSearch {
-	return &albumSearch{
-		albumSearch: a,
+func NewAlbumSearch(a usecase.AlbumSearch) *albumSearchHandler {
+	return &albumSearchHandler{
+		aUsecase: a,
 	}
 }
 
-func (a albumSearch) GetAlbumInfoByTitleAndArtist(c echo.Context) error {
+func (a albumSearchHandler) GetAlbumInfoByTitleAndArtist(c echo.Context) error {
+	var albumSearchParams model.AlbumSearchParams
+
+	if err := c.Bind(&albumSearchParams); err != nil {
+		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "invalid parameters"})
+	}
+
+	if err := helper.CheckAlbumSearchParams(albumSearchParams); err != nil {
+		log.Printf("FSDFDDFSDFSDFSFDSFDSFDSDFSDSFSDF")
+		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: err.Error()})
+	}
+
 	params := c.QueryParams()
 
 	if _, ok := params["album"]; !ok {
@@ -30,7 +42,7 @@ func (a albumSearch) GetAlbumInfoByTitleAndArtist(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "missing required parameter"})
 	}
 
-	album, err := a.albumSearch.GetAlbumByTitleAndArtist(params)
+	album, err := a.aUsecase.GetAlbumByTitleAndArtist(params)
 	if err != nil {
 		log.Error().Err(err).Msg("error calling getAlbumByTitleAndArtist")
 

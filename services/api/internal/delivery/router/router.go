@@ -10,11 +10,11 @@ import (
 func CreateRoutes(artistUsecase usecase.ArtistTrackSearch, albumUsecase usecase.AlbumSearch) *echo.Echo {
 	e := echo.New()
 
-	artistHandler := handler.NewArtistTrackSearch(e, artistUsecase)
+	artistHandler := handler.NewArtistTrackSearch(artistUsecase)
 
-	albumHandler := handler.NewAlbumSearch(e, albumUsecase)
+	albumSearchHandler := handler.NewAlbumSearch(albumUsecase)
 
-	e.GET("/album", albumHandler.GetAlbumInfoByTitleAndArtist)
+	e.GET("/album", albumSearchHandler.GetAlbumInfoByTitleAndArtist)
 
 	e.GET("/tracks", artistHandler.GetTracksAndArtists)
 
