@@ -13,7 +13,6 @@ type TrackDBResponse struct {
 	Name       string `json:"name"`
 	Listeners  int    `json:"listeners"`
 	Playcounts int    `json:"playcounts"`
-	Artist     string `json:"artist"`
 }
 
 type TrackResponse struct {

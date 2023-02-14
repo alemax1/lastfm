@@ -3,8 +3,6 @@ package app
 import (
 	"api/config"
 	"api/internal/delivery/router"
-	"api/internal/repository"
-	"api/internal/usecase"
 	"fmt"
 
 	"github.com/rs/zerolog/log"
@@ -16,15 +14,7 @@ func Run() {
 		log.Fatal().Err(err).Msg("error trying init config")
 	}
 
-	artistTrackSearchRepository := repository.NewArtistTrackSearch()
-
-	artistTrackSearchUsecase := usecase.NewArtistTrackSearch(artistTrackSearchRepository)
-
-	albumSearchRepository := repository.NewAlbumSearch()
-
-	albumSearchUsecase := usecase.NewAlbumSearch(albumSearchRepository)
-
-	e := router.CreateRoutes(artistTrackSearchUsecase, albumSearchUsecase)
+	e := router.CreateRoutes()
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf("%s:%d", viper.GetString("server.host"), viper.GetInt("server.port"))))
 }

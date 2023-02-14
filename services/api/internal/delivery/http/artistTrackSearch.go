@@ -1,8 +1,8 @@
 package http
 
 import (
+	"api/internal/delivery/helper"
 	"api/internal/delivery/model"
-	"api/internal/usecase"
 	"net/http"
 
 	"github.com/rs/zerolog/log"
@@ -10,24 +10,21 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type artistTrackSearch struct {
-	artistTrackSearch usecase.ArtistTrackSearch
+type artistTrackSearchHandler struct {
 }
 
-func NewArtistTrackSearch(a usecase.ArtistTrackSearch) *artistTrackSearch {
-	return &artistTrackSearch{
-		artistTrackSearch: a,
-	}
+func NewArtistTrackSearch() *artistTrackSearchHandler {
+	return new(artistTrackSearchHandler)
 }
 
-func (a artistTrackSearch) GetTracksAndArtists(c echo.Context) error {
+func (a artistTrackSearchHandler) GetTracksAndArtists(c echo.Context) error {
 	params := c.QueryParams()
 
-	if _, ok := params["track"]; !ok {
-		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "missing required parameter"})
+	if err := helper.CheckTrackSearchParams(params); err != nil {
+		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: err.Error()})
 	}
 
-	tracks, err := a.artistTrackSearch.GetArtistsAndTracks(params)
+	tracks, err := helper.GetArtistsAndTracks(params)
 	if err != nil {
 		log.Error().Err(err).Msg("error calling getAlbumByTitleAndArtist")
 

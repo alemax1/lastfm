@@ -17,13 +17,13 @@ type AlbumTracks struct {
 	Tracks []AlbumTrack `json:"track"`
 }
 
-type AlbumTrackSearch struct {
-	AlbumTrack `json:"track"`
-}
-
 type AlbumTrack struct {
 	Name      string `json:"name"`
 	Listeners string `json:"listeners"`
 	Playcount string `json:"playcount"`
 	Tags      Tags   `json:"toptags"`
+}
+
+type AlbumTrackSearch struct {
+	AlbumTrack `json:"track"`
 }

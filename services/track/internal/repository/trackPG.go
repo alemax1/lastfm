@@ -121,7 +121,7 @@ func (t trackPG) SaveTrackInfoToDB(tracks domain.TracksResponse) (err error) {
 
 func (t trackPG) GetTracksByTag(page, limit int, tag string) ([]domain.TrackDBResponse, error) {
 	rows, err := t.Conn.Query(`SELECT 
-	t.id, t.name, t.listeners, t.playcounts, a.name 
+	t.id, t.name, t.listeners, t.playcounts
 		FROM tracks t
 	JOIN artists a ON t.artist_id = a.id
 	JOIN tracks_tags tt ON t.id = tt.track_id
@@ -139,7 +139,7 @@ func (t trackPG) GetTracksByTag(page, limit int, tag string) ([]domain.TrackDBRe
 	for rows.Next() {
 		var track domain.TrackDBResponse
 
-		if err := rows.Scan(&track.ID, &track.Name, &track.Listeners, &track.Playcounts, &track.Artist); err != nil {
+		if err := rows.Scan(&track.ID, &track.Name, &track.Listeners, &track.Playcounts); err != nil {
 			return nil, fmt.Errorf("scan: %v", err)
 		}
 

@@ -1,7 +1,7 @@
 {
     "server":{
         "host":"localhost",
-        "port": 8080
+        "port": 8090
     },
     "trackAggregator":{
         "host":"http://localhost",

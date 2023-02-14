@@ -1,5 +1,7 @@
-1. Mapper and ask about it
 2. Rename Track service
 3. Naming in repository layer same titles of struct and interface
 4. Migrations with makefile
 5. Пустые id в базе 
+6.Clean track service
+7.kafka
+8.chart service

@@ -3,7 +3,6 @@ package http
 import (
 	"api/internal/delivery/helper"
 	"api/internal/delivery/model"
-	"api/internal/usecase"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -11,38 +10,20 @@ import (
 )
 
 type albumSearchHandler struct {
-	aUsecase usecase.AlbumSearch
 }
 
-func NewAlbumSearch(a usecase.AlbumSearch) *albumSearchHandler {
-	return &albumSearchHandler{
-		aUsecase: a,
-	}
+func NewAlbumSearch() *albumSearchHandler {
+	return new(albumSearchHandler)
 }
 
 func (a albumSearchHandler) GetAlbumInfoByTitleAndArtist(c echo.Context) error {
-	var albumSearchParams model.AlbumSearchParams
+	params := c.QueryParams()
 
-	if err := c.Bind(&albumSearchParams); err != nil {
-		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "invalid parameters"})
-	}
-
-	if err := helper.CheckAlbumSearchParams(albumSearchParams); err != nil {
-		log.Printf("FSDFDDFSDFSDFSFDSFDSFDSDFSDSFSDF")
+	if err := helper.CheckAlbumSearchParams(params); err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: err.Error()})
 	}
 
-	params := c.QueryParams()
-
-	if _, ok := params["album"]; !ok {
-		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "missing required parameter"})
-	}
-
-	if _, ok := params["artist"]; !ok {
-		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "missing required parameter"})
-	}
-
-	album, err := a.aUsecase.GetAlbumByTitleAndArtist(params)
+	album, err := helper.GetAlbumByTitleAndArtist(params)
 	if err != nil {
 		log.Error().Err(err).Msg("error calling getAlbumByTitleAndArtist")
 

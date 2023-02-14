@@ -2,11 +2,6 @@ package model
 
 import "api/internal/domain"
 
-type AlbumSearchParams struct {
-	Artist string `query:"artist"`
-	Album  string `query:"album"`
-}
-
 type TrackAndArtistsResponse struct {
 	Data []domain.Track `json:"data"`
 }
