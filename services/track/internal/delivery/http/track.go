@@ -2,7 +2,7 @@ package http
 
 import (
 	"net/http"
-	"strconv"
+	"track/internal/delivery/helper"
 	"track/internal/delivery/model"
 	"track/internal/usecase"
 
@@ -23,12 +23,18 @@ func NewTrackSearch(e *echo.Echo, t usecase.Track) *track {
 func (t track) TrackSearch(c echo.Context) error {
 	params := c.QueryParams()
 
-	if _, ok := params["track"]; !ok {
-		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "missing required param"})
+	if err := helper.CheckTrackSearchParams(params); err != nil {
+		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: err.Error()})
 	}
 
-	tracks, err := t.track.TrackSearch(params)
+	tracks, err := helper.TrackSearch(params)
 	if err != nil {
+		log.Err(err).Msg("error calling trackSearch helper")
+
+		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: "something went wrong"})
+	}
+
+	if err := t.track.TrackSearch(c.Request().Context(), params, tracks); err != nil {
 		log.Err(err).Msg("error calling trackSearch")
 
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: "something went wrong"})
@@ -40,40 +46,17 @@ func (t track) TrackSearch(c echo.Context) error {
 func (t track) GetTracksByTag(c echo.Context) error {
 	params := c.QueryParams()
 
-	if _, ok := params["tag"]; !ok {
-		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "missing required param"})
+	tag, err := helper.CheckTracksByTagParams(params)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: err.Error()})
 	}
 
-	page := params.Get("page")
-
-	var pageNum int
-	var err error
-
-	if page != "" {
-		pageNum, err = strconv.Atoi(page)
-		if err != nil || pageNum < 0 {
-			return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "invalidd page"})
-		}
+	page, limit, err := helper.GetPagination(params)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "invalid pagination params"})
 	}
 
-	limit := params.Get("limit")
-
-	limitNum := 100
-
-	if limit != "" {
-		limitNum, err = strconv.Atoi(limit)
-		if err != nil || limitNum < 0 {
-			return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "invalid limit"})
-		}
-	}
-
-	tag := params.Get("tag")
-
-	if tag == "" {
-		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "invalid tag"})
-	}
-
-	tracks, err := t.track.GetTracksByTag(pageNum, limitNum, tag)
+	tracks, err := t.track.GetTracksByTag(c.Request().Context(), page, limit, tag)
 	if err != nil {
 		log.Err(err).Msg("error calling getTracksByTag")
 
@@ -86,40 +69,17 @@ func (t track) GetTracksByTag(c echo.Context) error {
 func (t track) GetTracksByArtist(c echo.Context) error {
 	params := c.QueryParams()
 
-	if _, ok := params["artist"]; !ok {
-		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "missing required param"})
+	artist, err := helper.CheckTracksByArtistParams(params)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: err.Error()})
 	}
 
-	page := params.Get("page")
-
-	var pageNum int
-	var err error
-
-	if page != "" {
-		pageNum, err = strconv.Atoi(page)
-		if err != nil || pageNum < 0 {
-			return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "invalidd page"})
-		}
+	page, limit, err := helper.GetPagination(params)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "invalid pagination params"})
 	}
 
-	limit := params.Get("limit")
-
-	limitNum := 100
-
-	if limit != "" {
-		limitNum, err = strconv.Atoi(limit)
-		if err != nil || limitNum < 0 {
-			return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "invalid limit"})
-		}
-	}
-
-	artist := params.Get("artist")
-
-	if artist == "" {
-		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "invalid artist"})
-	}
-
-	tracks, err := t.track.GetTracksByArtist(pageNum, limitNum, artist)
+	tracks, err := t.track.GetTracksByArtist(c.Request().Context(), page, limit, artist)
 	if err != nil {
 		log.Err(err).Msg("error calling getTracksByArtist")
 

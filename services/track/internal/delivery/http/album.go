@@ -2,6 +2,7 @@ package http
 
 import (
 	"net/http"
+	"track/internal/delivery/helper"
 	"track/internal/delivery/model"
 	"track/internal/usecase"
 
@@ -10,28 +11,30 @@ import (
 )
 
 type albumSearch struct {
-	albumSearch usecase.AlbumSearch
+	aUsecase usecase.AlbumSearch
 }
 
 func NewAlbumSearch(e *echo.Echo, a usecase.AlbumSearch) *albumSearch {
 	return &albumSearch{
-		albumSearch: a,
+		aUsecase: a,
 	}
 }
 
 func (a albumSearch) AlbumSearch(c echo.Context) error {
 	params := c.QueryParams()
 
-	if _, ok := params["album"]; !ok {
-		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "missing required parameter"})
+	if err := helper.CheckAlbumSearchParams(params); err != nil {
+		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: err.Error()})
 	}
 
-	if _, ok := params["artist"]; !ok {
-		return c.JSON(http.StatusBadRequest, model.ErrorResponse{Error: "missing required parameter"})
-	}
-
-	album, err := a.albumSearch.AlbumSearch(params)
+	album, err := helper.AlbumSearch(params)
 	if err != nil {
+		log.Err(err).Msg("error calling albumSearch helper")
+
+		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: "something went wrong"})
+	}
+
+	if err := a.aUsecase.AlbumSearch(c.Request().Context(), params, album); err != nil {
 		log.Err(err).Msg("error calling albumSearch")
 
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{Error: "something went wrong"})

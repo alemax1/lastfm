@@ -43,3 +43,17 @@ CREATE TABLE IF NOT EXISTS albums_tracks(
     track_id INTEGER REFERENCES tracks(id),
     CONSTRAINT album_id_track_id UNIQUE (album_id, track_id)
 );
+
+DROP TABLE IF EXISTS albums_tracks;
+
+DROP TABLE IF EXISTS albums_tags;
+
+DROP TABLE IF EXISTS albums;
+
+DROP TABLE IF EXISTS tracks_tags;
+
+DROP TABLE IF EXISTS tags;
+
+DROP TABLE IF EXISTS tracks;
+
+DROP TABLE IF EXISTS artists;

@@ -6,24 +6,24 @@ type Album struct {
 	ArtistID int    `json:"artist_id"`
 }
 
-type Response struct {
-	Data AlbumResponse `json:"data"`
+type AlbumResponse struct {
+	Data albumData `json:"data"`
 }
 
-type AlbumResponse struct {
+type albumData struct {
 	Artist      string `json:"artist"`
 	Name        string `json:"name"`
 	Tags        `json:"tags"`
 	Playcount   string `json:"playcount"`
 	Listeners   string `json:"listeners"`
-	AlbumTracks `json:"tracks"`
+	albumTracks `json:"tracks"`
 }
 
-type AlbumTracks struct {
-	Tracks []AlbumTrack `json:"track"`
+type albumTracks struct {
+	Tracks []albumTrack `json:"track"`
 }
 
-type AlbumTrack struct {
+type albumTrack struct {
 	Name      string `json:"name"`
 	Listeners string `json:"listeners"`
 	Playcount string `json:"playcount"`

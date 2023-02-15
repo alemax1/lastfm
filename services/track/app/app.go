@@ -26,17 +26,13 @@ func Run() {
 		log.Fatal().Err(err).Msg("error trying create db connection")
 	}
 
-	trackRepository := repository.NewTrack()
-
 	trackPGRepository := repository.NewTrackPG(conn)
 
-	trackUsecase := usecase.NewTrack(trackRepository, trackPGRepository)
-
-	albumRepository := repository.NewAlbum()
+	trackUsecase := usecase.NewTrack(trackPGRepository)
 
 	albumPGRepository := repository.NewAlbumPG(conn)
 
-	albumUsecase := usecase.NewAlbumSearch(albumRepository, albumPGRepository)
+	albumUsecase := usecase.NewAlbumSearch(albumPGRepository)
 
 	e := router.CreateRoutes(trackUsecase, albumUsecase)
 

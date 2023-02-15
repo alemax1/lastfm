@@ -20,7 +20,7 @@ type TrackResponse struct {
 	Artist    string `json:"artist"`
 	Listeners string `json:"listeners"`
 	Playcount string `json:"playcount"`
-	Tags      []Tag  `json:"tags"`
+	Tags      []tag  `json:"tags"`
 }
 
 type TracksResponse struct {

@@ -1,36 +1,29 @@
 package usecase
 
 import (
-	"fmt"
+	"context"
 	"track/internal/domain"
 	"track/internal/repository"
 )
 
 type albumSearch struct {
-	albumSearch repository.Album
-	albumPG     repository.AlbumPG
+	albumPG repository.AlbumPG
 }
 
-func NewAlbumSearch(a repository.Album, aPG repository.AlbumPG) AlbumSearch {
+func NewAlbumSearch(aPG repository.AlbumPG) AlbumSearch {
 	return &albumSearch{
-		albumSearch: a,
-		albumPG:     aPG,
+		albumPG: aPG,
 	}
 }
 
 type AlbumSearch interface {
-	AlbumSearch(params map[string][]string) (domain.Response, error)
+	AlbumSearch(ctx context.Context, params map[string][]string, album domain.AlbumResponse) error
 }
 
-func (a albumSearch) AlbumSearch(params map[string][]string) (domain.Response, error) {
-	album, err := a.albumSearch.AlbumSearch(params)
-	if err != nil {
-		return domain.Response{}, fmt.Errorf("albumSearch: %v", err)
+func (a albumSearch) AlbumSearch(ctx context.Context, params map[string][]string, album domain.AlbumResponse) error {
+	if err := a.albumPG.SaveAlbumInfoToDB(ctx, album); err != nil {
+		return err
 	}
 
-	if err := a.albumPG.SaveAlbumInfoToDB(album.Data); err != nil {
-		return domain.Response{}, fmt.Errorf("save: %v", err)
-	}
-
-	return album, nil
+	return nil
 }
