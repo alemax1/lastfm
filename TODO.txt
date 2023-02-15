@@ -5,3 +5,5 @@
 6.Clean track service
 7.kafka
 8.chart service
+9. Services naming 
+10. Review all
