@@ -13,6 +13,7 @@ import (
 	_ "github.com/lib/pq"
 
 	"github.com/rs/zerolog/log"
+	kafka "github.com/segmentio/kafka-go"
 	"github.com/spf13/viper"
 )
 
@@ -25,6 +26,12 @@ func Run() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("error trying create db connection")
 	}
+
+	connK, err := kafka.Dial("tcp", "localhost:9092")
+	if err != nil {
+		log.Fatal().Err(err).Msg("error trying create kafka")
+	}
+	fmt.Println(connK)
 
 	trackPGRepository := repository.NewTrackPG(conn)
 
